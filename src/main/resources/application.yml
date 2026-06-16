@@ -1,0 +1,29 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Budget AI — configuração base
+# Provedor selecionado pelo profile ativo (BUDGET_AI_PROVIDER).
+#   export BUDGET_AI_PROVIDER=ollama   (padrão dev)
+# Profiles disponíveis: ollama | claude | gemini | nvidia
+# ─────────────────────────────────────────────────────────────────────────────
+spring:
+  application:
+    name: budget-ai
+  profiles:
+    active: ${BUDGET_AI_PROVIDER:ollama}
+  datasource:
+    url: jdbc:h2:mem:budget
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org.springframework.ai: DEBUG

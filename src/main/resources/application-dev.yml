@@ -1,0 +1,18 @@
+# ── DEV: Ollama local (homelab, sem custo, offline) ──────────────────────────
+# Apenas chat de texto (/api/ai/chat). Ollama não cobre áudio: /api/ai/voice
+# retorna 501 neste perfil. Para voz, use um perfil cloud (áudio via OpenAI).
+spring:
+  config:
+    activate:
+      on-profile: ollama
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: qwen2.5
+          temperature: 0.2
+    # Desliga a autoconfig OpenAI quando rodando só Ollama, evitando
+    # ambiguidade de ChatModel (e a exigência de OPENAI_API_KEY).
+    model:
+      chat: ollama

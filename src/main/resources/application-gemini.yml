@@ -1,0 +1,35 @@
+# ── PROD: Google Gemini (chat via endpoint OpenAI-compatible) ────────────────
+spring:
+  config:
+    activate:
+      on-profile: gemini
+  ai:
+    model:
+      chat: openai
+      audio:
+        transcription: openai
+        speech: openai
+    openai:
+      base-url: https://generativelanguage.googleapis.com
+      api-key: ${GEMINI_API_KEY}
+      chat:
+        completions-path: /v1beta/openai/chat/completions
+        options:
+          model: gemini-2.0-flash
+      audio:
+        transcription:
+          base-url: https://api.openai.com
+          api-key: ${OPENAI_API_KEY}
+          options:
+            model: whisper-1
+            language: pt
+            temperature: 0
+            response-format: text
+        speech:
+          base-url: https://api.openai.com
+          api-key: ${OPENAI_API_KEY}
+          options:
+            model: gpt-4o-mini-tts
+            voice: nova
+            speed: 1.2
+            response-format: mp3

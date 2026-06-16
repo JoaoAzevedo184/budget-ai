@@ -1,0 +1,35 @@
+# ── PROD: NVIDIA NIM (chat via endpoint OpenAI-compatible) ───────────────────
+spring:
+  config:
+    activate:
+      on-profile: nvidia
+  ai:
+    model:
+      chat: openai
+      audio:
+        transcription: openai
+        speech: openai
+    openai:
+      base-url: https://integrate.api.nvidia.com
+      api-key: ${NVIDIA_API_KEY}
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          model: meta/llama-3.1-70b-instruct
+      audio:
+        transcription:
+          base-url: https://api.openai.com
+          api-key: ${OPENAI_API_KEY}
+          options:
+            model: whisper-1
+            language: pt
+            temperature: 0
+            response-format: text
+        speech:
+          base-url: https://api.openai.com
+          api-key: ${OPENAI_API_KEY}
+          options:
+            model: gpt-4o-mini-tts
+            voice: nova
+            speed: 1.2
+            response-format: mp3
