@@ -17,7 +17,7 @@ import java.time.LocalDate;
  *   RN-1: valor deve ser maior que zero
  *   RN-2: descrição obrigatória, máx. 120 caracteres
  *   RN-3: data não pode ser futura
- *   RN-4: categoria normalizada (lowercase, trim)
+ *   RN-4: categoria obrigatória, normalizada (lowercase, trim)
  *   RN-5: tipo obrigatório
  */
 @Component
@@ -43,13 +43,13 @@ public class TransactionValidator {
             throw new ValidationException("RN-2",
                     "A descrição não pode exceder " + MAX_DESCRIPTION_LENGTH + " caracteres.");
         }
-        // RN-3
-        if (date == null || date.isAfter(LocalDate.now())) {
-            throw new ValidationException("RN-3", "A data não pode ser futura.");
-        }
         // RN-5
         if (type == null) {
             throw new ValidationException("RN-5", "O tipo (INCOME/EXPENSE) é obrigatório.");
+        }
+        // RN-3
+        if (date == null || date.isAfter(LocalDate.now())) {
+            throw new ValidationException("RN-3", "A data não pode ser futura.");
         }
         // RN-4
         if (category == null || category.isBlank()) {
