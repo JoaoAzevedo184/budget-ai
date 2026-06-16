@@ -2,6 +2,7 @@ package dio.budgeting.application;
 
 import dio.budgeting.application.output.TransactionOutput;
 import dio.budgeting.application.validation.TransactionValidator;
+import dio.budgeting.domain.Transaction;
 import dio.budgeting.domain.TransactionRepository;
 import dio.budgeting.domain.TransactionType;
 import org.springframework.stereotype.Service;

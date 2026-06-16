@@ -1,6 +1,6 @@
 package dio.budgeting.application.output;
 
-import dio.budgeting.application.Transaction;
+import dio.budgeting.domain.Transaction;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

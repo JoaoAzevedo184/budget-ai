@@ -1,7 +1,5 @@
 package dio.budgeting.domain;
 
-import dio.budgeting.application.Transaction;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;

@@ -1,7 +1,7 @@
-package dio.budgeting.application;
+package dio.budgeting.domain;
 
-import dio.budgeting.domain.TransactionId;
-import dio.budgeting.domain.TransactionType;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,6 +13,8 @@ import java.time.LocalDate;
  * camada de aplicação), com tipo (INCOME/EXPENSE) e data.
  * Sem Lombok aqui de propósito — domínio puro, sem dependência de framework.
  */
+@Getter
+@Setter
 public class Transaction {
 
     private final TransactionId id;
@@ -37,29 +39,5 @@ public class Transaction {
     public Transaction(String description, BigDecimal amount,
                        TransactionType type, String category, LocalDate date) {
         this(new TransactionId(), description, amount, type, category, date);
-    }
-
-    public TransactionId getId() {
-        return id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public TransactionType getType() {
-        return type;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public LocalDate getDate() {
-        return date;
     }
 }

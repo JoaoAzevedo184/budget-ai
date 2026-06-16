@@ -1,6 +1,6 @@
 package dio.budgeting.infrastructure.persistence.repository;
 
-import dio.budgeting.application.Transaction;
+import dio.budgeting.domain.Transaction;
 import dio.budgeting.domain.TransactionRepository;
 import dio.budgeting.domain.TransactionType;
 import dio.budgeting.infrastructure.persistence.entity.TransactionEntity;

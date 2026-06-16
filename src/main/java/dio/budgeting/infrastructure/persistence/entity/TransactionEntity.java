@@ -1,6 +1,6 @@
 package dio.budgeting.infrastructure.persistence.entity;
 
-import dio.budgeting.application.Transaction;
+import dio.budgeting.domain.Transaction;
 import dio.budgeting.domain.TransactionId;
 import dio.budgeting.domain.TransactionType;
 import jakarta.persistence.Column;
@@ -74,11 +74,4 @@ public class TransactionEntity {
                 category,
                 date);
     }
-
-    public UUID getId() { return id; }
-    public String getDescription() { return description; }
-    public BigDecimal getAmount() { return amount; }
-    public TransactionType getType() { return type; }
-    public String getCategory() { return category; }
-    public LocalDate getDate() { return date; }
 }

@@ -1,8 +1,7 @@
-### Budget AI — exemplos de requisição (use com a extensão REST Client do VS Code)
-
+### Budget AI — exemplos de requisição (REST Client do VS Code)
 @host = http://localhost:8080
 
-### 1. Criar transação via REST direto (testa o domínio + validações)
+### 1. Criar transação (testa domínio + validações)
 POST {{host}}/api/transactions
 Content-Type: application/json
 
@@ -10,52 +9,51 @@ Content-Type: application/json
   "description": "Mercado",
   "amount": 45.00,
   "type": "EXPENSE",
-  "category": "mercado",
+  "category": "Mercado",
   "date": "2026-06-15"
 }
 
-### 2. Validação RN-1 (valor zero deve falhar)
+### 2. RN-1: valor zero deve falhar (422 + ruleCode RN-1)
 POST {{host}}/api/transactions
 Content-Type: application/json
 
 {
-  "description": "Teste inválido",
+  "description": "Inválido",
   "amount": 0,
   "type": "EXPENSE",
   "category": "teste",
   "date": "2026-06-15"
 }
 
-### 3. Validação RN-3 (data futura deve falhar)
+### 3. RN-3: data futura deve falhar
 POST {{host}}/api/transactions
 Content-Type: application/json
 
 {
-  "description": "Gasto no futuro",
+  "description": "Futuro",
   "amount": 10.00,
   "type": "EXPENSE",
   "category": "teste",
   "date": "2099-01-01"
 }
 
-### 4. Conversar com a IA por texto (Tool Calling sem áudio)
+### 4. Listar por período
+GET {{host}}/api/transactions?from=2026-06-01&to=2026-06-30
+
+### 5. Resumo agregado por categoria
+GET {{host}}/api/transactions/summary?category=mercado&from=2026-06-01&to=2026-06-30
+
+### 6. IA por texto — criar (Tool Calling)
 POST {{host}}/api/ai/chat
 Content-Type: application/json
 
-{
-  "message": "registra um gasto de 30 reais de uber hoje"
-}
+{ "message": "registra um gasto de 30 reais de uber hoje" }
 
-### 5. Consulta agregada — testa a nova tool sumByCategory
+### 7. IA por texto — consulta agregada (tool sumByCategory)
 POST {{host}}/api/ai/chat
 Content-Type: application/json
 
-{
-  "message": "quanto gastei com transporte esse mês?"
-}
+{ "message": "quanto gastei com transporte esse mês?" }
 
-### 6. Listar transações
-GET {{host}}/api/transactions
-
-### 7. Fluxo completo por voz (envie um .mp3)
-# POST {{host}}/api/ai/voice  (multipart/form-data, campo: audio)
+### 8. Fluxo de voz (multipart, campo "audio") — requer perfil cloud com áudio
+# POST {{host}}/api/ai/voice
