@@ -1,8 +1,8 @@
 # 🎙️ Budget AI — Assistente Financeiro por Voz com Spring AI
 
-API inteligente em **Spring Boot 3 + Spring AI** que recebe comandos de **voz**, transcreve o áudio, interpreta a intenção com um modelo de linguagem e executa **funções reais** da aplicação (criar e consultar transações financeiras) via **Tool Calling**.
+API inteligente em **Spring Boot 3.5 + Spring AI** que recebe comandos de **voz**, transcreve o áudio, interpreta a intenção com um modelo de linguagem e executa **funções reais** da aplicação (criar e consultar transações financeiras) via **Tool Calling**.
 
-> Projeto desenvolvido para o **Desafio de Projeto Spring AI** da [DIO](https://www.dio.me/) (trilha NTT DATA — Backend Java com Spring AI). Construído do zero, reaproveitando a arquitetura em camadas proposta pelo expert Thiago Poiani.
+> Desenvolvido para o **Desafio de Projeto Spring AI** da [DIO](https://www.dio.me/) (trilha NTT DATA — Backend Java com Spring AI). Construído do zero, reaproveitando a arquitetura em camadas proposta pelo expert Thiago Poiani.
 
 ---
 
@@ -12,11 +12,11 @@ API inteligente em **Spring Boot 3 + Spring AI** que recebe comandos de **voz**,
 - [Fluxo principal](#-fluxo-principal)
 - [Arquitetura](#-arquitetura)
 - [Stack / tecnologias](#-stack--tecnologias)
-- [Provedores de IA suportados](#-provedores-de-ia-suportados)
+- [Provedores de IA](#-provedores-de-ia-suportados)
 - [Minhas evoluções](#-minhas-evoluções-o-diferencial-da-entrega)
 - [Como executar](#-como-executar)
-- [Como testar o fluxo principal](#-como-testar-o-fluxo-principal)
-- [Endpoints REST](#-endpoints-rest)
+- [Como testar](#-como-testar-o-fluxo-principal)
+- [Endpoints](#-endpoints-rest)
 - [O que aprendi](#-o-que-aprendi)
 
 ---
@@ -27,10 +27,10 @@ O **Budget AI** é uma API de orçamento pessoal controlada por voz. Em vez de p
 
 1. transcreve a fala em texto;
 2. entende a intenção usando um LLM;
-3. chama a função correta da aplicação (criar transação, consultar saldo, etc.);
+3. chama a função correta da aplicação (criar transação, consultar, somar por categoria);
 4. devolve uma resposta em texto e/ou áudio.
 
-O foco **não é só usar IA**, e sim conectar IA a uma aplicação real **sem furar os limites de domínio e casos de uso** — a IA orquestra, mas quem executa a regra de negócio é o código.
+O foco **não é só usar IA**, e sim conectar IA a uma aplicação real **sem furar os limites de domínio e casos de uso** — a IA orquestra, mas quem executa e valida a regra de negócio é o código.
 
 ---
 
@@ -43,25 +43,19 @@ O foco **não é só usar IA**, e sim conectar IA a uma aplicação real **sem f
                                                          └───────┬───────┘
                                                                  │ tool call
                                                                  ▼
-                                                   ┌───────────────────┐
-                                                   │  Casos de uso     │
-                                                   │ (criar/consultar  │
-                                                   │   transação)      │
-                                                   └─────────┬─────────┘
-                                                             │
-                                       ┌─────────────────────┼─────────────────────┐
-                                       ▼                                           ▼
-                                ┌────────────┐                          ┌──────────────────┐
-                                │ Repositório│                          │ TextToSpeechModel│
-                                │   (JPA)    │                          │  → resposta MP3  │
-                                └────────────┘                          └──────────────────┘
+                                                       ┌───────────────────┐
+                                                       │  Casos de uso     │
+                                                       │ (criar/consultar/ │
+                                                       │  somar)           │
+                                                       └─────────┬─────────┘
+                                                                 │
+                                       ┌─────────────────────────┼───────────────────────┐
+                                       ▼                                                 ▼
+                                ┌────────────┐                              ┌──────────────────┐
+                                │ Repositório│                              │ TextToSpeechModel│
+                                │   (JPA)    │                              │  → resposta MP3  │
+                                └────────────┘                              └──────────────────┘
 ```
-
-1. **Cliente** envia um arquivo de áudio (`POST /api/ai/voice`).
-2. **Transcrição** converte o áudio em texto (speech-to-text).
-3. **ChatClient** recebe o texto e decide qual ferramenta usar (Tool Calling).
-4. **Caso de uso** persiste ou consulta dados de transação.
-5. Resposta final é convertida em áudio (text-to-speech) e/ou texto.
 
 ---
 
@@ -71,28 +65,34 @@ Arquitetura em camadas (DDD + Clean Architecture). A IA é apenas mais um *drive
 
 ```
 src/main/java/dio/budgeting/
-├── domain/            # Modelo de domínio + contrato de repositório (regras puras)
-│   ├── Transaction.java
-│   ├── TransactionType.java
-│   └── TransactionRepository.java
-├── application/       # Casos de uso usados POR REST E PELA IA
+├── domain/                         # Regras puras, sem framework
+│   ├── Transaction.java            #   valor BigDecimal, type, category, date
+│   ├── TransactionType.java        #   INCOME | EXPENSE
+│   ├── TransactionId.java          #   strong-typed id (UUID)
+│   └── TransactionRepository.java  #   porta de saída
+├── application/                    # Casos de uso (REST + IA usam os mesmos)
 │   ├── CreateTransactionUseCase.java
 │   ├── QueryTransactionsUseCase.java
-│   └── validation/    # ✅ MINHA EVOLUÇÃO: validações antes de salvar
-│       └── TransactionValidator.java
-└── infrastructure/    # Adaptadores: HTTP, JPA, e a "cola" da IA
+│   ├── output/TransactionOutput.java
+│   └── validation/                 # ✅ EVOLUÇÃO: validações antes de salvar
+│       ├── TransactionValidator.java
+│       └── ValidationException.java
+└── infrastructure/
+    ├── SecurityConfig.java         # libera endpoints + Swagger
     ├── ai/
     │   ├── BudgetTools.java        # @Tool expostas ao modelo
-    │   ├── ChatClientConfig.java   # multi-provider (Ollama/Claude/Gemini/NVIDIA)
-    │   └── VoiceController.java
-    ├── rest/
-    │   └── TransactionController.java
+    │   ├── ChatClientConfig.java   # monta o ChatClient com tools + prompt
+    │   └── AiController.java       # /api/ai/chat e /api/ai/voice
+    ├── http/
+    │   ├── TransactionController.java       # /api/transactions
+    │   ├── GlobalExceptionHandler.java      # ProblemDetail (RFC 7807)
+    │   ├── request/  response/
     └── persistence/
-        ├── TransactionEntity.java
-        └── JpaTransactionRepository.java
+        ├── entity/TransactionEntity.java
+        └── repository/ (JpaTransactionRepository, TransactionEntityRepository)
 ```
 
-**Princípio-chave:** o mesmo caso de uso (`CreateTransactionUseCase`) é chamado tanto pelo `TransactionController` (REST) quanto pelo `BudgetTools` (Tool Calling da IA). A regra de negócio não é duplicada.
+**Princípio-chave:** o mesmo `CreateTransactionUseCase` é chamado pelo `TransactionController` (REST) e pelo `BudgetTools` (Tool Calling). A regra de negócio não é duplicada.
 
 ---
 
@@ -101,141 +101,114 @@ src/main/java/dio/budgeting/
 | Camada | Tecnologia |
 |---|---|
 | Linguagem | Java 21 |
-| Framework | Spring Boot 3.5 |
-| IA | Spring AI 1.0 |
-| Build | Gradle (Kotlin DSL) |
+| Framework | Spring Boot 3.5.15 |
+| IA | Spring AI 1.1.8 |
+| Build | Maven (wrapper incluído) |
 | Persistência | Spring Data JPA + H2 (dev) / PostgreSQL (compose) |
 | IA local | Ollama (homelab) |
 | IA cloud | Claude (Anthropic), Gemini (Google), NVIDIA NIM |
-| Testes | JUnit 5 + Mockito + Spring Boot Test |
+| Áudio | OpenAI Whisper (STT) + TTS |
+| Docs | springdoc-openapi (Swagger UI) |
+| Testes | JUnit 5 + AssertJ + Spring Boot Test |
 | Container | Docker Compose |
 
 ---
 
 ## 🤖 Provedores de IA suportados
 
-A aplicação foi desenhada para ser **provider-agnostic**. Em desenvolvimento eu uso **Ollama local** (sem custo, offline, rodando no meu homelab); para qualidade de produção, qualquer provedor *OpenAI-compatible* pode ser plugado só trocando `base-url`, `api-key` e `model`.
+A aplicação é **provider-agnostic**. Em desenvolvimento uso **Ollama local** (sem custo, offline, no meu homelab); para produção, qualquer provedor *OpenAI-compatible* é plugado só trocando `base-url`, `api-key` e `model`. O provedor é escolhido pelo profile ativo via `BUDGET_AI_PROVIDER`.
 
-| Provedor | Papel | Como é configurado |
-|---|---|---|
-| **Ollama** | Dev / testes locais | Starter Ollama nativo, `base-url=http://localhost:11434` |
-| **Claude** | Expert (raciocínio / Tool Calling) | via endpoint OpenAI-compatible |
-| **Gemini** | Expert (multimodal) | via endpoint OpenAI-compatible do Gemini |
-| **NVIDIA NIM** | Expert (inferência acelerada) | via endpoint OpenAI-compatible (`integrate.api.nvidia.com`) |
+| Provedor | Profile | Papel | Áudio (voz) |
+|---|---|---|---|
+| **Ollama** | `ollama` (default) | Dev / testes locais | ❌ (use `/api/ai/chat`) |
+| **Claude** | `claude` | Expert — raciocínio / Tool Calling | ✅ via OpenAI |
+| **Gemini** | `gemini` | Expert — multimodal | ✅ via OpenAI |
+| **NVIDIA NIM** | `nvidia` | Expert — inferência acelerada | ✅ via OpenAI |
 
-> ⚠️ **Nota técnica importante:** quando os *starters* de OpenAI e Ollama coexistem, ambos registram um bean `ChatModel` e o Spring quebra por ambiguidade. A solução adotada aqui é usar **`@Profile`** + **`@Qualifier`** para selecionar o provedor por ambiente — veja `ChatClientConfig.java`. Você ativa o provedor pela variável `BUDGET_AI_PROVIDER` (`ollama` | `claude` | `gemini` | `nvidia`).
+> ⚠️ **Nota técnica:** os provedores cloud falam o protocolo **OpenAI-compatible**, então uso o starter OpenAI apontando `base-url` para o endpoint de cada um. Como Ollama e OpenAI coexistem no classpath, cada profile fixa explicitamente o `ChatModel` ativo (`spring.ai.model.chat`) para evitar ambiguidade de bean. Voz (Whisper/TTS) é coberta pela OpenAI; em modo Ollama puro, `/api/ai/voice` responde `501` e você usa o endpoint de texto.
 
 ---
 
 ## ⭐ Minhas evoluções (o diferencial da entrega)
 
-A partir do projeto base, implementei **duas melhorias**:
+### 1. Nova ferramenta no Tool Calling — `sumByCategory`
 
-### 1. Nova ferramenta no Tool Calling — consulta por categoria e período
+Permite perguntas como *"quanto gastei com transporte essa semana?"*. O modelo extrai categoria e intervalo de datas da fala e chama a função, que agrega no banco via query JPA com `SUM` + `COALESCE` (retorna 0 em vez de null).
 
-Adicionei a tool `sumByCategory`, que permite perguntas como *"quanto gastei com transporte essa semana?"*. O modelo identifica a categoria e o intervalo de datas a partir da fala e chama a função, que agrega as transações no banco.
+### 2. Validações antes de salvar — `TransactionValidator`
 
-```java
-@Tool(description = "Soma o total gasto em uma categoria dentro de um período")
-public BigDecimal sumByCategory(
-        @ToolParam(description = "Categoria, ex: mercado, transporte") String category,
-        @ToolParam(description = "Data inicial (YYYY-MM-DD)") LocalDate from,
-        @ToolParam(description = "Data final (YYYY-MM-DD)") LocalDate to) {
-    return queryUseCase.sumByCategory(category, from, to);
-}
-```
+Roda **antes da persistência**, protegendo o domínio mesmo quando o comando vem da IA (não-determinística):
 
-### 2. Validações antes de salvar uma transação
+| Regra | Descrição |
+|---|---|
+| RN-1 | valor deve ser maior que zero |
+| RN-2 | descrição obrigatória, máx. 120 caracteres |
+| RN-3 | data não pode ser futura |
+| RN-4 | categoria obrigatória, normalizada (lowercase + trim) |
+| RN-5 | tipo (INCOME/EXPENSE) obrigatório |
 
-Criei a camada `TransactionValidator`, que roda **antes da persistência** e protege o domínio mesmo quando o comando vem da IA (que pode interpretar valores errados). Regras implementadas:
-
-- **RN-1:** valor da transação deve ser **maior que zero**.
-- **RN-2:** descrição é **obrigatória** e tem no máximo 120 caracteres.
-- **RN-3:** data não pode ser **futura**.
-- **RN-4:** categoria é normalizada (lowercase, sem espaços nas bordas).
-- **RN-5:** tipo (`INCOME`/`EXPENSE`) é obrigatório.
-
-Erros de validação retornam um **contrato de erro consistente** (`ProblemDetail`, RFC 7807), tanto no REST quanto quando a IA tenta executar a tool.
-
-> Por que isso importa: a IA é **não-determinística**. Sem essa barreira, um comando mal interpretado poderia gravar lixo no banco. As validações garantem que o domínio permaneça íntegro independentemente da origem do comando.
+Erros retornam um contrato consistente (`ProblemDetail`, RFC 7807) com o `ruleCode`, tanto no REST quanto via tool.
 
 ---
 
 ## ▶️ Como executar
 
 ### Pré-requisitos
-
 - Java 21
+- [Ollama](https://ollama.com/) rodando localmente (modo dev)
 - Docker (opcional, para PostgreSQL)
-- [Ollama](https://ollama.com/) rodando localmente (para o modo dev)
 
 ### 1. Subir o Ollama e baixar um modelo com suporte a tools
-
 ```bash
 ollama serve
-ollama pull qwen2.5        # modelo com bom suporte a Tool Calling
-ollama pull llama3.2       # alternativa mais leve
+ollama pull qwen2.5
 ```
 
-### 2. Configurar o provedor
-
-Para **desenvolvimento local (Ollama)** — nenhuma chave necessária:
-
+### 2. Rodar (Ollama, padrão — sem chave)
 ```bash
 export BUDGET_AI_PROVIDER=ollama
-./gradlew bootRun
+./mvnw spring-boot:run
 ```
 
-Para usar um **expert na nuvem** (ex.: Gemini):
-
+### 3. Rodar com expert na nuvem (ex.: Gemini)
 ```bash
 export BUDGET_AI_PROVIDER=gemini
-export GEMINI_API_KEY="sua_chave_aqui"
-./gradlew bootRun
+export GEMINI_API_KEY="sua_chave"
+export OPENAI_API_KEY="sua_chave_openai"   # necessária só para voz
+./mvnw spring-boot:run
 ```
+Equivalentes: `CLAUDE_API_KEY`, `NVIDIA_API_KEY`.
 
-Variáveis equivalentes: `CLAUDE_API_KEY`, `NVIDIA_API_KEY`.
-
-### 3. Rodar os testes
-
+### 4. Testes
 ```bash
-./gradlew test
+./mvnw test
 ```
 
 ---
 
 ## 🧪 Como testar o fluxo principal
 
-### Via voz (fluxo completo)
-
-```bash
-curl -X POST http://localhost:8080/api/ai/voice \
-  -F "audio=@comando.mp3" \
-  --output resposta.mp3
-```
-
-Exemplos de comando falado:
-- *"Registrar gasto de 45 reais no mercado hoje"*
-- *"Quanto eu gastei com transporte esse mês?"*
-- *"Qual o meu saldo?"*
-
-### Via texto (para testar a IA sem gravar áudio)
-
+**IA por texto (Tool Calling, qualquer provedor):**
 ```bash
 curl -X POST http://localhost:8080/api/ai/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "registra um gasto de 30 reais de uber hoje"}'
 ```
 
-### Via REST direto (sem IA — útil para validar o domínio)
-
+**REST direto (valida o domínio):**
 ```bash
 curl -X POST http://localhost:8080/api/transactions \
   -H "Content-Type: application/json" \
   -d '{"description":"Mercado","amount":45.00,"type":"EXPENSE","category":"mercado","date":"2026-06-15"}'
 ```
 
-Veja exemplos prontos em [`docs/requests.http`](docs/requests.http).
+**Voz (perfil cloud com áudio):**
+```bash
+curl -X POST http://localhost:8080/api/ai/voice \
+  -F "audio=@comando.mp3" --output resposta.mp3
+```
+
+Exemplos prontos em [`docs/requests.http`](docs/requests.http).
 
 ---
 
@@ -243,28 +216,27 @@ Veja exemplos prontos em [`docs/requests.http`](docs/requests.http).
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `POST` | `/api/ai/voice` | Recebe áudio, processa e devolve áudio |
-| `POST` | `/api/ai/chat` | Recebe texto, processa via IA, devolve texto |
+| `POST` | `/api/ai/chat` | Texto → IA → texto |
+| `POST` | `/api/ai/voice` | Áudio → IA → áudio (perfil cloud) |
 | `POST` | `/api/transactions` | Cria transação (com validações) |
-| `GET` | `/api/transactions` | Lista transações |
-| `GET` | `/api/transactions/summary` | Resumo por categoria/período |
+| `GET` | `/api/transactions?from=&to=` | Lista por período |
+| `GET` | `/api/transactions/summary?category=&from=&to=` | Soma por categoria |
 
-Documentação interativa (Swagger): `http://localhost:8080/swagger-ui.html`
+Swagger: `http://localhost:8080/swagger-ui.html`
 
 ---
 
 ## 💡 O que aprendi
 
-- **Tool Calling não é mágica.** O modelo só decide *qual* função chamar e com *quais* argumentos — quem executa e valida é o seu código. Isso reforça a importância de manter casos de uso bem definidos.
-- **IA é uma fonte de entrada não confiável.** Tratei os argumentos vindos do LLM com a mesma desconfiança que trataria input de um usuário anônimo na internet — daí a camada de validação.
-- **Abstração de provider vale muito.** Conseguir desenvolver de graça com Ollama local e plugar um expert na nuvem só trocando configuração mostra o poder do `ChatModel` como interface portável.
-- **Ambiguidade de beans** entre starters foi um problema real e me ensinou a usar `@Profile`/`@Qualifier` de forma intencional.
-- **Separar transcrição, raciocínio e síntese de voz** deixa cada parte testável de forma isolada.
+- **Tool Calling não é mágica.** O modelo só decide *qual* função chamar e com *quais* argumentos — quem executa e valida é o código. Manter casos de uso bem definidos é o que torna isso seguro.
+- **IA é entrada não confiável.** Tratei os argumentos vindos do LLM com a mesma desconfiança de um input anônimo da internet — daí a camada de validação.
+- **Abstração de provider vale muito.** Desenvolver de graça com Ollama local e plugar um expert na nuvem só trocando configuração mostra o poder do `ChatModel` como interface portável.
+- **Coexistência de starters** (Ollama + OpenAI) exige fixar o `ChatModel` ativo por profile para evitar ambiguidade de bean.
+- **Separar transcrição, raciocínio e síntese de voz** deixa cada parte testável isoladamente.
 
 ---
 
 ## 📄 Licença
-
 MIT — veja [LICENSE](LICENSE).
 
 ---
