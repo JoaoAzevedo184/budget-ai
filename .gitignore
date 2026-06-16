@@ -1,7 +1,6 @@
-# Gradle
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
 
 # IDE
 .idea/
@@ -10,11 +9,6 @@ build/
 .settings/
 .classpath
 .project
-
-# Build
-out/
-target/
-bin/
 
 # Logs
 *.log
@@ -26,8 +20,8 @@ Thumbs.db
 # Secrets / env
 .env
 *.env
-application-local.properties
-application-secrets.properties
+application-local.yml
+application-secrets.yml
 
 # Áudios de teste
 *.mp3
