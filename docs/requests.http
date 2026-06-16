@@ -1,0 +1,61 @@
+### Budget AI — exemplos de requisição (use com a extensão REST Client do VS Code)
+
+@host = http://localhost:8080
+
+### 1. Criar transação via REST direto (testa o domínio + validações)
+POST {{host}}/api/transactions
+Content-Type: application/json
+
+{
+  "description": "Mercado",
+  "amount": 45.00,
+  "type": "EXPENSE",
+  "category": "mercado",
+  "date": "2026-06-15"
+}
+
+### 2. Validação RN-1 (valor zero deve falhar)
+POST {{host}}/api/transactions
+Content-Type: application/json
+
+{
+  "description": "Teste inválido",
+  "amount": 0,
+  "type": "EXPENSE",
+  "category": "teste",
+  "date": "2026-06-15"
+}
+
+### 3. Validação RN-3 (data futura deve falhar)
+POST {{host}}/api/transactions
+Content-Type: application/json
+
+{
+  "description": "Gasto no futuro",
+  "amount": 10.00,
+  "type": "EXPENSE",
+  "category": "teste",
+  "date": "2099-01-01"
+}
+
+### 4. Conversar com a IA por texto (Tool Calling sem áudio)
+POST {{host}}/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "registra um gasto de 30 reais de uber hoje"
+}
+
+### 5. Consulta agregada — testa a nova tool sumByCategory
+POST {{host}}/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "quanto gastei com transporte esse mês?"
+}
+
+### 6. Listar transações
+GET {{host}}/api/transactions
+
+### 7. Fluxo completo por voz (envie um .mp3)
+# POST {{host}}/api/ai/voice  (multipart/form-data, campo: audio)
