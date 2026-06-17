@@ -7,6 +7,9 @@
 spring:
   application:
     name: budget-ai
+  docker:
+    compose:
+      enabled: false
   profiles:
     active: ${BUDGET_AI_PROVIDER:ollama}
   datasource:

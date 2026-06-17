@@ -6,13 +6,13 @@ spring:
     activate:
       on-profile: ollama
   ai:
+    openai:
+      api-key: not-needed-in-ollama-profile
     ollama:
       base-url: http://localhost:11434
       chat:
         options:
-          model: qwen2.5
+          model: qwen2.5:latest
           temperature: 0.2
-    # Desliga a autoconfig OpenAI quando rodando só Ollama, evitando
-    # ambiguidade de ChatModel (e a exigência de OPENAI_API_KEY).
     model:
       chat: ollama
