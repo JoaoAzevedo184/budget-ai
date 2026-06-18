@@ -81,12 +81,9 @@ class TransactionControllerTest {
     }
 
     @Test
-    void post_shouldReturn422_withRuleCode_whenValidationFails() throws Exception {
-        // o use case lança a exceção de domínio (ex.: RN-1, valor zero)
-        when(createUseCase.execute(anyString(), any(), any(), anyString(), any()))
-                .thenThrow(new ValidationException("RN-1",
-                        "O valor da transação deve ser maior que zero."));
-
+    void post_shouldReturn422_fromBeanValidation_whenAmountIsZero() throws Exception {
+        // Com @Valid no controller, o Bean Validation barra ANTES do use case.
+        // A requisição com amount=0 nem chega ao TransactionValidator de domínio.
         var body = Map.of(
                 "description", "Inválido",
                 "amount", 0,
@@ -98,8 +95,8 @@ class TransactionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isUnprocessableEntity())   // 422
-                .andExpect(jsonPath("$.ruleCode").value("RN-1"))
-                .andExpect(jsonPath("$.title").value("Transação inválida"));
+                .andExpect(jsonPath("$.title").value("Requisição inválida"))
+                .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("valor")));
     }
 
     @Test
