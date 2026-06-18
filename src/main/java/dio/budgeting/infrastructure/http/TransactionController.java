@@ -4,6 +4,7 @@ import dio.budgeting.application.CreateTransactionUseCase;
 import dio.budgeting.application.QueryTransactionsUseCase;
 import dio.budgeting.infrastructure.http.request.TransactionRequest;
 import dio.budgeting.infrastructure.http.response.TransactionResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class TransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse create(@RequestBody TransactionRequest req) {
+    public TransactionResponse create(@Valid @RequestBody TransactionRequest req) {
         var output = createUseCase.execute(
                 req.description(), req.amount(), req.type(), req.category(), req.date());
         return TransactionResponse.from(output);
