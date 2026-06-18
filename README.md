@@ -2,7 +2,7 @@
 
 API inteligente em **Spring Boot 3.5 + Spring AI** que recebe comandos de **voz**, transcreve o áudio, interpreta a intenção com um modelo de linguagem e executa **funções reais** da aplicação (criar e consultar transações financeiras) via **Tool Calling**.
 
-> Desenvolvido para o **Desafio de Projeto Spring AI** da [DIO](https://www.dio.me/) (trilha NTT DATA — Backend Java com Spring AI). Construído do zero, reaproveitando a arquitetura em camadas proposta pelo expert Thiago Poiani.
+> Desenvolvido para o **Desafio de Projeto Spring AI** da [DIO](https://www.dio.me/) . Construído do zero, reaproveitando a arquitetura em camadas proposta pelo expert Thiago Poiani.
 
 ---
 
