@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "Budget AI",
+    "description": "Collection para testar a API Budget AI (Spring Boot + Spring AI). Endpoints REST diretos (validam o domínio) e endpoints de IA (Tool Calling). Use a variável {{host}} definida na própria collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "host",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Transações (REST direto)",
+      "item": [
+        {
+          "name": "1. Criar transação (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Mercado\",\n  \"amount\": 45.00,\n  \"type\": \"EXPENSE\",\n  \"category\": \"Mercado\",\n  \"date\": \"2026-06-15\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/transactions",
+              "host": ["{{host}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Cria uma transação. Passa pelas validações RN-1..RN-5. A categoria deve voltar normalizada (minúscula): 'mercado'."
+          }
+        },
+        {
+          "name": "2. RN-1: valor zero (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Inválido\",\n  \"amount\": 0,\n  \"type\": \"EXPENSE\",\n  \"category\": \"teste\",\n  \"date\": \"2026-06-15\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/transactions",
+              "host": ["{{host}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Valor zero deve falhar com 422 e ProblemDetail contendo ruleCode RN-1."
+          }
+        },
+        {
+          "name": "3. RN-3: data futura (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Futuro\",\n  \"amount\": 10.00,\n  \"type\": \"EXPENSE\",\n  \"category\": \"teste\",\n  \"date\": \"2099-01-01\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/transactions",
+              "host": ["{{host}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Data futura deve falhar com 422 e ruleCode RN-3."
+          }
+        },
+        {
+          "name": "4. Listar por período",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/transactions?from=2026-06-01&to=2026-06-30",
+              "host": ["{{host}}"],
+              "path": ["api", "transactions"],
+              "query": [
+                { "key": "from", "value": "2026-06-01" },
+                { "key": "to", "value": "2026-06-30" }
+              ]
+            },
+            "description": "Lista as transações de um período (datas obrigatórias)."
+          }
+        },
+        {
+          "name": "5. Resumo agregado por categoria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/transactions/summary?category=mercado&from=2026-06-01&to=2026-06-30",
+              "host": ["{{host}}"],
+              "path": ["api", "transactions", "summary"],
+              "query": [
+                { "key": "category", "value": "mercado" },
+                { "key": "from", "value": "2026-06-01" },
+                { "key": "to", "value": "2026-06-30" }
+              ]
+            },
+            "description": "Soma o total (despesas) de uma categoria no período. Retorna um número (ex.: 45.00)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "IA (Tool Calling)",
+      "item": [
+        {
+          "name": "6. Chat — criar transação",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"registra um gasto de 30 reais de uber hoje\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/ai/chat",
+              "host": ["{{host}}"],
+              "path": ["api", "ai", "chat"]
+            },
+            "description": "A IA interpreta o comando e decide chamar a tool create-transaction. Resposta em {\"reply\": \"...\"}. Modelos menores podem errar o tool calling."
+          }
+        },
+        {
+          "name": "7. Chat — consulta agregada",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"quanto gastei com transporte esse mês?\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/ai/chat",
+              "host": ["{{host}}"],
+              "path": ["api", "ai", "chat"]
+            },
+            "description": "A IA deve chamar a tool sum-by-category. Depende do modelo extrair categoria e período da fala."
+          }
+        },
+        {
+          "name": "8. Voice — áudio (501 no perfil ollama)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "audio",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecione um arquivo .mp3. No perfil ollama retorna 501 (sem modelos de áudio)."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/ai/voice",
+              "host": ["{{host}}"],
+              "path": ["api", "ai", "voice"]
+            },
+            "description": "Fluxo de voz completo. Requer perfil cloud com áudio. No perfil ollama responde 501 Not Implemented."
+          }
+        }
+      ]
+    }
+  ]
+}
