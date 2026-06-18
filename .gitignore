@@ -26,4 +26,6 @@ application-secrets.yml
 # Áudios de teste
 *.mp3
 *.wav
-!docs/samples/*.mp3
+*.m4a
+!src/test/resources/audio/**
+!docs/samples/**
