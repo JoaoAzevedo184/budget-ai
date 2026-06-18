@@ -69,6 +69,18 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Migrations de banco -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<!-- Suporte específico por banco (Flyway 10+ modularizou) -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+
 
 		<!-- ========================= -->
 		<!-- 🔐 SEGURANÇA -->
