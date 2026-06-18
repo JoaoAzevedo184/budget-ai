@@ -1,0 +1,57 @@
+# ── OpenRouter: chat (e tentativa de voz) via endpoint OpenAI-compatible ─────
+#
+# Uma única chave (OPENROUTER_API_KEY) cobre chat, transcrição e TTS.
+#
+# ⚠️ CRÉDITO: o OpenRouter cobra por uso. Chat com modelo pago e transcrição
+# Whisper exigem saldo na conta (sem saldo → erro 402). Modelos de chat com
+# sufixo ":free" não custam, mas nem todos suportam tool calling bem.
+#
+# ⚠️ VOZ É EXPERIMENTAL AQUI: o Spring AI monta o request de transcrição no
+# formato da OpenAI (multipart). O endpoint de áudio do OpenRouter é recente;
+# se a transcrição falhar com erro de formato, use um perfil com OpenAI real
+# para voz, mantendo o OpenRouter só para chat. O chat é OpenAI-compatible
+# puro e deve funcionar sem ajustes.
+#
+# Como rodar:
+#   export BUDGET_AI_PROVIDER=openrouter
+#   export OPENROUTER_API_KEY=sk-or-...
+#   ./mvnw spring-boot:run
+#
+spring:
+  config:
+    activate:
+      on-profile: openrouter
+  ai:
+    model:
+      chat: openai
+      audio:
+        transcription: openai
+        speech: openai
+    openai:
+      base-url: https://openrouter.ai/api
+      api-key: ${OPENROUTER_API_KEY}
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          # troque por um modelo que suporte tool calling.
+          # pagos (precisam de crédito): openai/gpt-4o-mini, google/gemini-2.5-flash
+          # grátis (sem custo, tools nem sempre confiáveis): qwen/qwen-2.5-72b-instruct:free
+          model: google/gemini-2.5-flash
+          temperature: 0.2
+      audio:
+        transcription:
+          base-url: https://openrouter.ai/api
+          api-key: ${OPENROUTER_API_KEY}
+          options:
+            model: openai/whisper-1   # note o prefixo "openai/" exigido pelo OpenRouter
+            language: pt
+            temperature: 0
+            response-format: text
+        speech:
+          base-url: https://openrouter.ai/api
+          api-key: ${OPENROUTER_API_KEY}
+          options:
+            model: openai/gpt-4o-mini-tts
+            voice: nova
+            speed: 1.2
+            response-format: mp3
