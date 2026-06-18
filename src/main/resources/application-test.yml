@@ -1,0 +1,28 @@
+# ── TEST: perfil de integração (H2 em memória, sem IA, sem Docker) ───────────
+# Ativado nos testes com @ActiveProfiles("test"). Isola a camada de dados/web
+# de qualquer dependência de rede ou de provedor de IA.
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:budget-test;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      # Flyway é quem cria o schema; o Hibernate apenas valida que bate com a entidade.
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  # Garante que nenhuma autoconfig de IA tente subir durante os testes.
+  ai:
+    model:
+      chat: none
