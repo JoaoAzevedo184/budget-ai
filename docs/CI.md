@@ -1,4 +1,4 @@
-# ⚙️ CI — Integração Contínua (GitHub Actions)
+# CI - Integração Contínua (GitHub Actions)
 
 O pipeline está em [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
 
@@ -25,7 +25,7 @@ um push novo (bloco `concurrency`).
 Se um dia você quiser rodar o teste de contexto no CI, suba um Ollama como
 service container e adicione `env: RUN_CONTEXT_TEST: 'true'` no step de build.
 
-## ⚠️ Pré-requisito: Maven Wrapper versionado
+## Pré-requisito: Maven Wrapper versionado
 
 O workflow chama `./mvnw`. Para funcionar no runner, estes arquivos (gerados
 pelo Spring Initializr) **precisam estar commitados** na raiz do repositório:

@@ -1,4 +1,4 @@
-# ── DEV: Ollama local (homelab, sem custo, offline) ──────────────────────────
+# DEV: Ollama local (sem custo, offline).
 # Apenas chat de texto (/api/ai/chat). Ollama não cobre áudio: /api/ai/voice
 # retorna 501 neste perfil. Para voz, use um perfil cloud (áudio via OpenAI).
 spring:

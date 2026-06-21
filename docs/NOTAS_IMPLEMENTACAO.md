@@ -1,4 +1,4 @@
-# 📝 Notas de implementação — Caminho B
+# Notas de implementação - Caminho B
 
 Este documento registra as decisões tomadas ao migrar do scaffold inicial
 (Spring Initializr + stubs) para o **Caminho B**: modelo de domínio novo com

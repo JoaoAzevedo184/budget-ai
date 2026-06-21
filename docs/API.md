@@ -1,4 +1,4 @@
-# 🌐 Referência da API — Budget AI
+# Referência da API - Budget AI
 
 Documentação dos endpoints REST. A documentação interativa (Swagger UI) fica em
 `http://localhost:8080/swagger-ui.html` com a aplicação rodando.
@@ -121,4 +121,4 @@ curl "http://localhost:8080/api/transactions/summary?category=mercado&from=2026-
 |---|---|
 | `create-transaction` | Registra uma transação |
 | `list-transactions` | Lista por período |
-| `sum-by-category` | ⭐ Soma por categoria + período (evolução) |
+| `sum-by-category` | Soma por categoria e período |

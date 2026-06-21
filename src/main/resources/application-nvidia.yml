@@ -1,4 +1,4 @@
-# ── PROD: NVIDIA NIM (chat via endpoint OpenAI-compatible) ───────────────────
+# PROD: NVIDIA NIM (chat via endpoint OpenAI-compatible).
 spring:
   config:
     activate:

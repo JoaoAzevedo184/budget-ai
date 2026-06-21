@@ -1,4 +1,4 @@
-# ── TEST: perfil de integração (H2 em memória, sem IA, sem Docker) ───────────
+# TEST: perfil de integração (H2 em memória, sem IA, sem Docker).
 # Ativado nos testes com @ActiveProfiles("test"). Isola a camada de dados/web
 # de qualquer dependência de rede ou de provedor de IA.
 spring:

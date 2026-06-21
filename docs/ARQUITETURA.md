@@ -1,4 +1,4 @@
-# 🏛️ Arquitetura — Budget AI
+# Arquitetura - Budget AI
 
 Documento técnico da arquitetura. Para visão geral e instruções de uso, veja o
 [README](../README.md).

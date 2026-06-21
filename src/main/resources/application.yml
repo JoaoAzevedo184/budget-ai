@@ -1,9 +1,7 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Budget AI — configuração base
+# Budget AI - configuração base.
 # Provedor selecionado pelo profile ativo (BUDGET_AI_PROVIDER).
 #   export BUDGET_AI_PROVIDER=ollama   (padrão dev)
 # Profiles disponíveis: ollama | claude | gemini | nvidia
-# ─────────────────────────────────────────────────────────────────────────────
 spring:
   application:
     name: budget-ai

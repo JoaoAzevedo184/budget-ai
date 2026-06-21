@@ -1,4 +1,4 @@
-# ── PROD: Google Gemini (chat via endpoint OpenAI-compatible) ────────────────
+# PROD: Google Gemini (chat via endpoint OpenAI-compatible).
 spring:
   config:
     activate:

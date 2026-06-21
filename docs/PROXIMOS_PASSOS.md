@@ -1,4 +1,4 @@
-# 🗺️ Próximos passos — Budget AI
+# Próximos passos - Budget AI
 
 Roteiro para levar o projeto de "compila e roda" até uma entrega de portfólio
 sólida. Ordenado por prioridade.
@@ -9,7 +9,7 @@ sólida. Ordenado por prioridade.
 
 Aplique as correções de [`REVISAO_CODIGO.md`](REVISAO_CODIGO.md), na ordem:
 
-- [ ] Apagar `infrastructure/ChatClientConfig.java` duplicado 🔴
+- [ ] Apagar `infrastructure/ChatClientConfig.java` duplicado
 - [ ] `./mvnw -B compile` passa
 - [ ] (opcional, recomendado) mover `Transaction` para `domain`
 - [ ] (opcional) limpar getters duplicados em `TransactionEntity`
