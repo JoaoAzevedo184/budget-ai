@@ -101,7 +101,7 @@ class TransactionControllerTest {
 
     @Test
     void getSummary_shouldReturnTotal() throws Exception {
-        when(queryUseCase.sumByCategory(eq("mercado"), any(), any()))
+        when(queryUseCase.sumByCategory(eq("mercado"), any(), any(), any()))
                 .thenReturn(new BigDecimal("45.00"));
 
         mockMvc.perform(get("/api/transactions/summary")

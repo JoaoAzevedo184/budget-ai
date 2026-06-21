@@ -15,17 +15,17 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Teste de INTEGRAÇÃO REAL do fluxo de voz (áudio -> transcrição -> IA -> TTS -> áudio).
+ * Teste de integração real do fluxo de voz (áudio -> transcrição -> IA -> TTS -> áudio).
  *
- * ⚠️ NÃO roda no CI. Sobe a aplicação de verdade e bate em provedores externos,
- * então exige credenciais e é disparado manualmente. Condições para rodar:
+ * Não roda no CI: sobe a aplicação de verdade e chama provedores externos, então
+ * exige credenciais e é disparado manualmente. Condições para rodar:
  *
- *   1. RUN_VOICE_IT=true              (liga este teste)
- *   2. Um profile com áudio ativo. Duas opções:
- *      a) profile "openrouter": UMA chave (OPENROUTER_API_KEY) cobre chat + voz.
- *         ⚠️ exige CRÉDITO na conta OpenRouter (transcrição Whisper é paga);
- *         ⚠️ voz via OpenRouter é experimental (ver application-openrouter.yml).
- *      b) profile "gemini": GEMINI_API_KEY (chat) + OPENAI_API_KEY (áudio).
+ *   1. RUN_VOICE_IT=true (liga este teste).
+ *   2. Um profile com áudio ativo:
+ *      a) profile "openrouter": uma chave (OPENROUTER_API_KEY) cobre chat e voz.
+ *         Exige crédito na conta (transcrição Whisper é paga) e a voz via
+ *         OpenRouter é experimental (ver application-openrouter.yml).
+ *      b) profile "gemini": GEMINI_API_KEY (chat) e OPENAI_API_KEY (áudio).
  *   3. Os arquivos src/test/resources/audio/recording-N.m4a presentes.
  *
  * Como rodar (exemplo, profile openrouter):
@@ -34,17 +34,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  *   export OPENROUTER_API_KEY=sk-or-...
  *   ./mvnw test -Dtest=VoiceFlowIntegrationTest
  *
- * Se vier erro 402 (Payment Required), é falta de crédito no OpenRouter, não
- * bug do código. Se vier 501, o profile ativo não tem modelos de áudio.
+ * Erro 402 (Payment Required) indica falta de crédito no OpenRouter, não bug do
+ * código. Erro 501 indica que o profile ativo não tem modelos de áudio.
  *
- * NOTA sobre asserção: como o conteúdo falado nos áudios não é conhecido de
- * antemão, o teste verifica apenas que o fluxo completo respondeu com um MP3
- * não-vazio (HTTP 200 + corpo de áudio). Quando você souber o que cada áudio
- * diz, dá para fortalecer: transcrever, criar a transação esperada e conferir
- * no banco via /api/transactions.
- *
- * Se o provedor de áudio não estiver configurado, o endpoint responde 501 — e
- * o teste falha de propósito, sinalizando que falta a credencial de áudio.
+ * Como o conteúdo falado não é conhecido de antemão, o teste verifica apenas que
+ * o fluxo completo respondeu com um MP3 não-vazio (HTTP 200 + corpo de áudio).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnabledIfEnvironmentVariable(named = "RUN_VOICE_IT", matches = "true")
@@ -54,7 +48,7 @@ class VoiceFlowIntegrationTest {
     private int port;
 
     @Autowired(required = false)
-    private org.springframework.boot.web.client.RestTemplateBuilder ignored; // só p/ contexto
+    private org.springframework.boot.web.client.RestTemplateBuilder ignored; // apenas para o contexto
 
     @Test
     void voice_shouldReturnNonEmptyMp3_forFirstRecording() {
