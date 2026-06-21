@@ -6,11 +6,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Config mínima de segurança para o desafio: libera os endpoints da API e o
- * Swagger. Sem isso, o spring-boot-starter-security protege tudo com basic auth
- * e os curls do README retornam 401.
+ * Configuração mínima de segurança: libera os endpoints da API e o Swagger.
+ * Sem isso, o spring-boot-starter-security protege tudo com basic auth e os
+ * curls do README retornam 401.
  *
- * ⚠️ Aberto de propósito por ser projeto educacional. Em produção, restrinja.
+ * Aberto de propósito por ser projeto educacional. Em produção, restrinja.
  */
 @Configuration
 public class SecurityConfig {
@@ -21,7 +21,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()));  // permite o H2 console em frame
+                        .frameOptions(frame -> frame.sameOrigin()));  // permite o console do H2 em frame
         return http.build();
     }
 }

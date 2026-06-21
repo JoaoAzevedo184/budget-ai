@@ -2,6 +2,8 @@ package dio.budgeting.infrastructure.http;
 
 import dio.budgeting.application.CreateTransactionUseCase;
 import dio.budgeting.application.QueryTransactionsUseCase;
+import dio.budgeting.application.output.CategoryTotalOutput;
+import dio.budgeting.domain.TransactionType;
 import dio.budgeting.infrastructure.http.request.TransactionRequest;
 import dio.budgeting.infrastructure.http.response.TransactionResponse;
 import jakarta.validation.Valid;
@@ -46,8 +48,29 @@ public class TransactionController {
     @GetMapping("/summary")
     public BigDecimal summary(
             @RequestParam String category,
+            @RequestParam(required = false) TransactionType type,
             @RequestParam LocalDate from,
             @RequestParam LocalDate to) {
-        return queryUseCase.sumByCategory(category, from, to);
+        return queryUseCase.sumByCategory(category, type, from, to);
+    }
+
+    /** Saldo do período: receitas menos despesas. */
+    @GetMapping("/balance")
+    public BigDecimal balance(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to) {
+        return queryUseCase.balance(from, to);
+    }
+
+    /** Top categorias por total no período. */
+    @GetMapping("/top-categories")
+    public List<CategoryTotalOutput> topCategories(
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to,
+            @RequestParam(required = false) Integer limit) {
+        return queryUseCase.topCategories(type, from, to, limit).stream()
+                .map(CategoryTotalOutput::from)
+                .toList();
     }
 }

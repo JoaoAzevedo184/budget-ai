@@ -2,6 +2,7 @@ package dio.budgeting.infrastructure.ai;
 
 import dio.budgeting.application.CreateTransactionUseCase;
 import dio.budgeting.application.QueryTransactionsUseCase;
+import dio.budgeting.application.output.CategoryTotalOutput;
 import dio.budgeting.application.output.TransactionOutput;
 import dio.budgeting.domain.TransactionType;
 import org.springframework.ai.tool.annotation.Tool;
@@ -50,16 +51,42 @@ public class BudgetTools {
         return queryUseCase.findByPeriod(from, to);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // ⭐ EVOLUÇÃO: nova tool de agregação por categoria + período
-    // Permite perguntas como "quanto gastei com transporte essa semana?"
-    // ──────────────────────────────────────────────────────────────────────────
+    // Agregação por categoria e período, com tipo opcional (EXPENSE como padrão).
     @Tool(name = "sum-by-category",
-          description = "Soma o total gasto em uma categoria dentro de um período")
+          description = "Soma o total de uma categoria dentro de um período. "
+                  + "Use type=EXPENSE para gastos (padrão) ou type=INCOME para receitas.")
     public BigDecimal sumByCategory(
             @ToolParam(description = "Categoria, ex: mercado, transporte") String category,
+            @ToolParam(description = "Tipo: EXPENSE (gasto, padrão) ou INCOME (receita). "
+                    + "Pode ser omitido para gastos.", required = false) TransactionType type,
             @ToolParam(description = "Data inicial (YYYY-MM-DD)") LocalDate from,
             @ToolParam(description = "Data final (YYYY-MM-DD)") LocalDate to) {
-        return queryUseCase.sumByCategory(category, from, to);
+        return queryUseCase.sumByCategory(category, type, from, to);
+    }
+
+    // Saldo do período: receitas menos despesas.
+    @Tool(name = "monthly-balance",
+          description = "Calcula o saldo de um período: total de receitas menos total de despesas. "
+                  + "Positivo significa que sobrou; negativo significa que gastou mais do que recebeu.")
+    public BigDecimal monthlyBalance(
+            @ToolParam(description = "Data inicial (YYYY-MM-DD)") LocalDate from,
+            @ToolParam(description = "Data final (YYYY-MM-DD)") LocalDate to) {
+        return queryUseCase.balance(from, to);
+    }
+
+    // Top categorias por total no período.
+    @Tool(name = "top-categories",
+          description = "Lista as categorias com maior total em um período, da maior para a menor. "
+                  + "Use type=EXPENSE (padrão) para gastos ou type=INCOME para receitas.")
+    public List<CategoryTotalOutput> topCategories(
+            @ToolParam(description = "Tipo: EXPENSE (padrão) ou INCOME. Pode ser omitido.",
+                    required = false) TransactionType type,
+            @ToolParam(description = "Data inicial (YYYY-MM-DD)") LocalDate from,
+            @ToolParam(description = "Data final (YYYY-MM-DD)") LocalDate to,
+            @ToolParam(description = "Quantas categorias retornar (padrão 5)",
+                    required = false) Integer limit) {
+        return queryUseCase.topCategories(type, from, to, limit).stream()
+                .map(CategoryTotalOutput::from)
+                .toList();
     }
 }

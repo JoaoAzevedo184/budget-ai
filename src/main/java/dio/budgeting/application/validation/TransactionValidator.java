@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * ⭐ EVOLUÇÃO: validações executadas ANTES de persistir uma transação.
+ * Validações executadas antes de persistir uma transação.
  *
  * A IA é uma fonte de entrada não-determinística: um comando mal interpretado
  * poderia gerar dados inválidos. Este validador protege o domínio independente

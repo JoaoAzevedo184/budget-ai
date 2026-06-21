@@ -9,9 +9,8 @@ import java.time.LocalDate;
 /**
  * Modelo de domínio da transação financeira.
  *
- * Caminho B: valor em BigDecimal, categoria como texto livre (normalizada na
- * camada de aplicação), com tipo (INCOME/EXPENSE) e data.
- * Sem Lombok aqui de propósito — domínio puro, sem dependência de framework.
+ * Valor em BigDecimal, categoria como texto livre (normalizada na camada de
+ * aplicação), com tipo (INCOME/EXPENSE) e data.
  */
 @Getter
 @Setter
